@@ -1,6 +1,7 @@
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const utils = require('./utils.js');
 
 const AIRLINES = ['AA', 'UA', 'DL'];
 
@@ -51,7 +52,6 @@ app.get('/', (req, res) => {
  *         description: Returns a list of airlines
  */
 app.get('/airlines/:err?', (req, res) => {
-  console.log(req.params)
   if (req.params.err === 'raise') {
     throw new Error('Raise test exception');
   }
@@ -87,11 +87,11 @@ app.get('/airlines/:err?', (req, res) => {
  *         description: Returns a list of airlines
  */
 app.get('/flights/:airline/:err?', (req, res) => {
-  console.log(req.params)
   if (req.params.err === 'raise') {
     throw new Error('Raise test exception');
   }
-  res.send({[req.params.airline]: []});
+  const randomInt = utils.getRandomInt(100, 999);
+  res.send({[req.params.airline]: [randomInt]});
 });
 
 const PORT = 3000;

@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flasgger import Swagger
+from utils import get_random_int
 
 app = Flask(__name__)
 Swagger(app)
@@ -56,7 +57,8 @@ def get_flights(airline, err=None):
     """
     if err == "raise":
         raise Exception("Raise test exception")
-    return jsonify({airline: []})
+    random_int = get_random_int(100, 999)
+    return jsonify({airline: [random_int]})
 
 if __name__ == "__main__":
     app.run(debug=True)

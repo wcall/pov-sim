@@ -24,7 +24,7 @@ The following applications, which are configured to run in Docker containers, ex
 git clone https://github.com/aninamu/pov-sim.git
 ```
 
-## flight-app-js
+## Running flight-app-js
 From the `flight-app-js` directory:
 
 Build the app
@@ -44,7 +44,7 @@ The app should now be up and running at http://localhost:3000/
 
 Navigate to http://localhost:3000/api-docs/ to view the API interface and make requests
 
-## flight-app-py
+## Running flight-app-py
 From the `flight-app-py` directory:
 
 Build the app
@@ -64,7 +64,7 @@ The app should now be up and running at http://127.0.0.1:5000/
 
 Navigate to http://127.0.0.1:5000/apidocs/ to view the API interface and make requests
 
-# Cleanup
+## Cleanup
 The Makefiles included with each application include additional commands to stop running containers and to clean up stopped containers.
 
 To stop a container, run the following command from the app root:
@@ -75,6 +75,25 @@ make stop
 To remove a container, run the following command from the app root:
 ```
 make clean
+```
+
+## Running both apps at once (Recommended)
+
+From the project root:
+
+Run the apps
+```
+make up
+```
+
+- The Express app will run on http://localhost:3000/ with Swagger docs at http://localhost:3000/api-docs/
+
+- The Flask app will run on http://127.0.0.1:5000/ with Swagger docs at http://127.0.0.1:5000/apidocs/
+
+
+Stop the running apps
+```
+make down
 ```
 
 # Batch Requests

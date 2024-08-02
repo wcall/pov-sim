@@ -1,0 +1,13 @@
+version: '1'
+services:
+  flight-app-js:
+    build:
+      context: ./flight-app-js
+    ports:
+      - "3000:3000"
+
+  flight-app-py:
+    build:
+      context: ./flight-app-py
+    ports:
+      - "5000:5000"

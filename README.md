@@ -5,6 +5,7 @@ Welcome to the POV Flight Simulator.
 This repo holds the starting points for you to complete the assigned tasks.
 
 # Links
+
 - [POV Sim spreadsheet](https://docs.google.com/spreadsheets/d/1NjyNKgT0HVhAmHKodApmUdZshkA_ccwRApL3aE1Hw8M/edit?gid=2099201327#gid=2099201327)
 
 # About
@@ -18,23 +19,28 @@ The following applications, which are configured to run in Docker containers, ex
 # Getting Up and Running
 
 ## Prerequisites
+
 - Install [Docker](https://docs.docker.com/engine/install/) on your local machine
 - Clone this repo to your local machine
+
 ```
 git clone https://github.com/aninamu/pov-sim.git
 ```
 
 ## Running flight-app-js
+
 From the `flight-app-js` directory:
 
 Build the app
 ```
 make build
 ```
+
 Run the app
 ```
 make run
 ```
+
 Alternatively, use a single command to both build and run the app:
 ```
 make start
@@ -45,16 +51,19 @@ The app should now be up and running at http://localhost:3000/
 Navigate to http://localhost:3000/api-docs/ to view the API interface and make requests
 
 ## Running flight-app-py
+
 From the `flight-app-py` directory:
 
 Build the app
 ```
 make build
 ```
+
 Run the app
 ```
 make run
 ```
+
 Alternatively, use a single command to both build and run the app:
 ```
 make start
@@ -65,6 +74,7 @@ The app should now be up and running at http://127.0.0.1:5000/
 Navigate to http://127.0.0.1:5000/apidocs/ to view the API interface and make requests
 
 ## Cleanup
+
 The Makefiles included with each application include additional commands to stop running containers and to clean up stopped containers.
 
 To stop a container, run the following command from the app root:
@@ -132,3 +142,37 @@ Running the script entails executing a shell command of this format from the bas
 ```
 
 _Note: These sample commands assume the application you wish to ping is running locally at http://localhost:3000. Replace with the proper value as needed._
+
+
+# Deploying a Helm chart
+
+You may wish to deploy a Helm chart to complete one of the tasks. This repo contains an example Helm chart that can be used for a sample Kubernetes deployment.
+
+Included is a recommended approach for using [Minikube](https://minikube.sigs.k8s.io/docs/) to deploy a local Kubernetes cluster.
+
+## Prerequisites
+
+- Install minikube https://minikube.sigs.k8s.io/docs/start/
+- Install helm https://helm.sh/docs/intro/install/
+
+## Getting up and running
+
+Start your cluster
+```
+minikube start
+```
+
+Option to view the local Kubernetes dashboard
+```
+minikube dashboard
+```
+
+Install the sample Helm chart
+```
+helm install sample-chart helm-charts/sample-chart
+```
+
+Confirm the pod is up and running
+```
+kubectl get pods
+```

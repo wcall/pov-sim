@@ -11,5 +11,3 @@ services:
       context: ./flight-app-py
     ports:
       - "5000:5000"
-
-  # TODO: Add alloy service

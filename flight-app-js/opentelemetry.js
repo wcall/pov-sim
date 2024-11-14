@@ -37,6 +37,7 @@ const myServiceMeterProvider = new MeterProvider({
 // Set this MeterProvider to be global to the app being instrumented.
 opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);
 
+const logsAPI = require('@opentelemetry/api-logs');
 
 // Set up the SDK for auto-instrumentation
 const sdk = new NodeSDK({

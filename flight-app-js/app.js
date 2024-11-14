@@ -1,4 +1,12 @@
 const { trace, metrics } = require('@opentelemetry/api');
+
+const logsAPI = require('@opentelemetry/api-logs');
+const {
+  LoggerProvider,
+  SimpleLogRecordProcessor,
+  ConsoleLogRecordExporter,
+} = require('@opentelemetry/sdk-logs');
+
 const tracer = trace.getTracer(
   'flight-app-js',
   '1.0.0',
@@ -7,12 +15,7 @@ const meter = metrics.getMeter('flight-app-js','1.0.0');
 const counter = meter.createCounter('flight-app-js.root_endpoint.counter', {
   description: 'Counts the number of times the root endpoint is invoked',
 });
-const logsAPI = require('@opentelemetry/api-logs');
-const {
-  LoggerProvider,
-  SimpleLogRecordProcessor,
-  ConsoleLogRecordExporter,
-} = require('@opentelemetry/sdk-logs');
+
 // To start a logger, you first need to initialize the Logger provider.
 const loggerProvider = new LoggerProvider();
 // Add a processor to export log record

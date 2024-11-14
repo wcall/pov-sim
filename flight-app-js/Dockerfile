@@ -6,7 +6,21 @@ WORKDIR /usr/src/app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install
+# Install express
+RUN npm install express swagger-jsdoc swagger-ui-express
+# Install OTEL packages
+RUN npm install \
+  @opentelemetry/sdk-node \
+  @opentelemetry/api \
+  @opentelemetry/auto-instrumentations-node \
+  @opentelemetry/sdk-metrics \
+  @opentelemetry/sdk-trace-node \ 
+  @opentelemetry/resources \ 
+  @opentelemetry/semantic-conventions
+# Install OTEL logs packages
+  RUN npm install --save \
+  @opentelemetry/api-logs \
+  @opentelemetry/sdk-logs
 
 # Bundle app source
 COPY . .
@@ -15,4 +29,5 @@ COPY . .
 EXPOSE 3000
 
 # Command to run the app
-CMD ["node", "app.js"]
+# require opentelemetry.js to instrument the app
+CMD ["node", "--require", "./opentelemetry.js", "app.js"]

@@ -1,3 +1,30 @@
+const { trace, metrics } = require('@opentelemetry/api');
+
+const logsAPI = require('@opentelemetry/api-logs');
+const {
+  LoggerProvider,
+  SimpleLogRecordProcessor,
+  ConsoleLogRecordExporter,
+} = require('@opentelemetry/sdk-logs');
+
+const tracer = trace.getTracer(
+  'flight-app-js',
+  '1.0.0',
+);
+const meter = metrics.getMeter('flight-app-js','1.0.0');
+const counter = meter.createCounter('flight-app-js.root_endpoint.counter', {
+  description: 'Counts the number of times the root endpoint is invoked',
+});
+
+// To start a logger, you first need to initialize the Logger provider.
+const loggerProvider = new LoggerProvider();
+// Add a processor to export log record
+loggerProvider.addLogRecordProcessor(
+  new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
+);
+//  To create a log record, you first need to get a Logger instance
+const logger = loggerProvider.getLogger('default');
+
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -30,7 +57,15 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
  *         description: Returns ok
  */
 app.get('/', (req, res) => {
+  counter.add(1);
   res.send({'message': 'ok'});
+  // emit a log record
+  logger.emit({
+    severityNumber: logsAPI.SeverityNumber.INFO,
+    severityText: 'INFO',
+    body: 'custom log record for the root endpoint',
+    attributes: { 'log.type': 'LogRecord' },
+  });
 });
 
 /**
@@ -52,10 +87,26 @@ app.get('/', (req, res) => {
  *         description: Returns a list of airlines
  */
 app.get('/airlines/:err?', (req, res) => {
-  if (req.params.err === 'raise') {
-    throw new Error('Raise test exception');
-  }
-  res.send({'airlines': AIRLINES});
+  // Create a span.
+  return tracer.startActiveSpan('get_airlines', span => {
+    if (req.params.err === 'raise') {
+      throw new Error('Raise test exception');
+    }
+
+    // Add an attribute to the span
+    const random_int = utils.getRandomInt(100, 999);
+    span.setAttribute('get_airlines.random_int', random_int);
+
+    res.send({ airlines: AIRLINES });
+    span.end();
+  });
+  // emit a log record
+  logger.emit({
+    severityNumber: logsAPI.SeverityNumber.INFO,
+    severityText: 'INFO',
+    body: 'custom log record for the get airlines endpoint',
+    attributes: { 'log.type': 'LogRecord' },
+  });
 });
 
 /**
@@ -90,8 +141,18 @@ app.get('/flights/:airline/:err?', (req, res) => {
   if (req.params.err === 'raise') {
     throw new Error('Raise test exception');
   }
+  // Record a new histogram value based on the random int generated
+  const histogram = meter.createHistogram('flights.randomInt');
   const randomInt = utils.getRandomInt(100, 999);
   res.send({[req.params.airline]: [randomInt]});
+  histogram.record(randomInt);
+  // emit a log record
+  logger.emit({
+    severityNumber: logsAPI.SeverityNumber.INFO,
+    severityText: 'INFO',
+    body: 'custom log record for the get flights endpoint',
+    attributes: { 'log.type': 'LogRecord' },
+  });
 });
 
 const PORT = 3000;

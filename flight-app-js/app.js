@@ -1,3 +1,15 @@
+const opentelemetry = require('@opentelemetry/api');
+const tracer = opentelemetry.trace.getTracer(
+  'flight-app-js',
+  '1.0.0',
+);
+const {
+  MeterProvider
+} = require('@opentelemetry/sdk-metrics');
+const meter = new MeterProvider().getMeter('flight-app-js');
+const counter = meter.createCounter('root_endpoint_counter', {
+  description: 'Counts the number of times the root endpoint is invoked',
+});
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -30,6 +42,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
  *         description: Returns ok
  */
 app.get('/', (req, res) => {
+  counter.add(1);
   res.send({'message': 'ok'});
 });
 

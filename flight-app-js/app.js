@@ -3,9 +3,11 @@ const { trace, metrics } = require('@opentelemetry/api');
 const logsAPI = require('@opentelemetry/api-logs');
 const {
   LoggerProvider,
+  BatchLogRecordProcessor,
   SimpleLogRecordProcessor,
   ConsoleLogRecordExporter,
 } = require('@opentelemetry/sdk-logs');
+const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-grpc');
 
 const tracer = trace.getTracer(
   'flight-app-js',
@@ -16,12 +18,19 @@ const counter = meter.createCounter('flight-app-js.root_endpoint.counter', {
   description: 'Counts the number of times the root endpoint is invoked',
 });
 
+const loggerExporter = new OTLPLogExporter({
+  url: 'http://localhost:4317',
+})
 // To start a logger, you first need to initialize the Logger provider.
 const loggerProvider = new LoggerProvider();
 // Add a processor to export log record
 loggerProvider.addLogRecordProcessor(
-  new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
+  //new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
+  new BatchLogRecordProcessor(loggerExporter)
 );
+['SIGINT', 'SIGTERM'].forEach(signal => {
+  process.on(signal, () => loggerProvider.shutdown().catch(console.error));
+});
 //  To create a log record, you first need to get a Logger instance
 const logger = loggerProvider.getLogger('default');
 

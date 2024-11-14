@@ -1,11 +1,18 @@
-/* instrumentation.js */
+/* opentelemetry.js */
 // Require dependencies
 const { NodeSDK } = require('@opentelemetry/sdk-node');
 const { ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-node');
 const {
   getNodeAutoInstrumentations,
 } = require('@opentelemetry/auto-instrumentations-node');
-const opentelemetry = require('@opentelemetry/api');
+const { opentelemetry } = require('@opentelemetry/api');
+// add OTLP exporters
+const {
+  OTLPTraceExporter,
+} = require('@opentelemetry/exporter-trace-otlp-grpc');
+const {
+  OTLPMetricExporter,
+} = require('@opentelemetry/exporter-metrics-otlp-grpc');
 const {
   MeterProvider,
   PeriodicExportingMetricReader,
@@ -25,10 +32,15 @@ const resource = Resource.default().merge(
 );
 
 const metricReader = new PeriodicExportingMetricReader({
-  exporter: new ConsoleMetricExporter(),
-  exportIntervalMillis: 10000, // Set to 10 seconds for demonstrative purposes only.
+  //exporter: new ConsoleMetricExporter(),
+  exporter: new OTLPMetricExporter({
+    //url: 'http://localhost:4317/v1/metrics',
+    url: 'http://localhost:4317',
+  }),
+  exportIntervalMillis: 15000, // Set to 15 seconds for demonstrative purposes only.
 });
 
+/*
 const myServiceMeterProvider = new MeterProvider({
   resource: resource,
   readers: [metricReader],
@@ -36,16 +48,17 @@ const myServiceMeterProvider = new MeterProvider({
 
 // Set this MeterProvider to be global to the app being instrumented.
 opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);
-
-const logsAPI = require('@opentelemetry/api-logs');
+*/
 
 // Set up the SDK for auto-instrumentation
 const sdk = new NodeSDK({
   resource: resource,
-  traceExporter: new ConsoleSpanExporter(),
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: new ConsoleMetricExporter(),
+  //traceExporter: new ConsoleSpanExporter(),
+  traceExporter: new OTLPTraceExporter({
+    //url: 'http://localhost:4317/v1/traces',
+    url: 'http://localhost:4317',
   }),
+  metricReader: metricReader,
   instrumentations: [getNodeAutoInstrumentations()],
 });
 

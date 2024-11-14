@@ -1,15 +1,13 @@
-const opentelemetry = require('@opentelemetry/api');
-const tracer = opentelemetry.trace.getTracer(
+const { trace, metrics } = require('@opentelemetry/api');
+const tracer = trace.getTracer(
   'flight-app-js',
   '1.0.0',
 );
-const {
-  MeterProvider
-} = require('@opentelemetry/sdk-metrics');
-const meter = new MeterProvider().getMeter('flight-app-js');
-const counter = meter.createCounter('root_endpoint_counter', {
+const meter = metrics.getMeter('flight-app-js','1.0.0');
+const counter = meter.createCounter('flight-app-js.root_endpoint.counter', {
   description: 'Counts the number of times the root endpoint is invoked',
 });
+
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
@@ -108,8 +106,11 @@ app.get('/flights/:airline/:err?', (req, res) => {
   if (req.params.err === 'raise') {
     throw new Error('Raise test exception');
   }
+  // Record a new histogram value based on the random int generated
+  const histogram = meter.createHistogram('flights.randomInt');
   const randomInt = utils.getRandomInt(100, 999);
   res.send({[req.params.airline]: [randomInt]});
+  histogram.record(randomInt);
 });
 
 const PORT = 3000;

@@ -65,10 +65,15 @@ app.get('/', (req, res) => {
  *         description: Returns a list of airlines
  */
 app.get('/airlines/:err?', (req, res) => {
-  if (req.params.err === 'raise') {
-    throw new Error('Raise test exception');
-  }
-  res.send({'airlines': AIRLINES});
+  // Create a span.
+  return tracer.startActiveSpan('get_airlines', span => {
+    if (req.params.err === 'raise') {
+      throw new Error('Raise test exception');
+    }
+
+    res.send({ airlines: AIRLINES });
+    span.end();
+  });
 });
 
 /**

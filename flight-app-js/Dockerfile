@@ -8,14 +8,17 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 # Install express
 RUN npm install express swagger-jsdoc swagger-ui-express
-# Install OTEL dependencies
+# Install OTEL packages
 RUN npm install \
   @opentelemetry/sdk-node \
   @opentelemetry/api \
   @opentelemetry/auto-instrumentations-node \
   @opentelemetry/sdk-metrics \
-  @opentelemetry/sdk-trace-node
-RUN npm install --save \
+  @opentelemetry/sdk-trace-node \ 
+  @opentelemetry/resources \ 
+  @opentelemetry/semantic-conventions
+# Install OTEL logs packages
+  RUN npm install --save \
   @opentelemetry/api-logs \
   @opentelemetry/sdk-logs
 

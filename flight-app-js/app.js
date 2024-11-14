@@ -93,6 +93,10 @@ app.get('/airlines/:err?', (req, res) => {
       throw new Error('Raise test exception');
     }
 
+    // Add an attribute to the span
+    const random_int = utils.getRandomInt(100, 999);
+    span.setAttribute('get_airlines.random_int', random_int);
+
     res.send({ airlines: AIRLINES });
     span.end();
   });

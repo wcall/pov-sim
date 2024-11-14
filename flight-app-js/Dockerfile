@@ -6,7 +6,18 @@ WORKDIR /usr/src/app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install
+# Install express
+RUN npm install express swagger-jsdoc swagger-ui-express
+# Install OTEL dependencies
+RUN npm install \
+  @opentelemetry/sdk-node \
+  @opentelemetry/api \
+  @opentelemetry/auto-instrumentations-node \
+  @opentelemetry/sdk-metrics \
+  @opentelemetry/sdk-trace-node
+RUN npm install --save \
+  @opentelemetry/api-logs \
+  @opentelemetry/sdk-logs
 
 # Bundle app source
 COPY . .

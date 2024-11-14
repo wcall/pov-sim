@@ -19,8 +19,8 @@ const {
 
 const resource = Resource.default().merge(
   new Resource({
-    [ATTR_SERVICE_NAME]: 'service-name-here',
-    [ATTR_SERVICE_VERSION]: '0.1.0',
+    [ATTR_SERVICE_NAME]: 'flight-app-js',
+    [ATTR_SERVICE_VERSION]: '1.0.0',
   })
 );
 
@@ -37,26 +37,10 @@ const myServiceMeterProvider = new MeterProvider({
 // Set this MeterProvider to be global to the app being instrumented.
 opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);
 
-const logsAPI = require('@opentelemetry/api-logs');
-const {
-  LoggerProvider,
-  SimpleLogRecordProcessor,
-  ConsoleLogRecordExporter,
-} = require('@opentelemetry/sdk-logs');
 
-// To start a logger, you first need to initialize the Logger provider.
-const loggerProvider = new LoggerProvider();
-// Add a processor to export log record
-loggerProvider.addLogRecordProcessor(
-  new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
-);
-//logsAPI.setGlobalLoggerProvider(loggerProvider);
-
+// Set up the SDK for auto-instrumentation
 const sdk = new NodeSDK({
-  resource: new Resource({
-    [ATTR_SERVICE_NAME]: 'flight-app-js',
-    [ATTR_SERVICE_VERSION]: '1.0.0',
-  }),
+  resource: resource,
   traceExporter: new ConsoleSpanExporter(),
   metricReader: new PeriodicExportingMetricReader({
     exporter: new ConsoleMetricExporter(),

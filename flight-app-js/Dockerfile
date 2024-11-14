@@ -26,4 +26,5 @@ COPY . .
 EXPOSE 3000
 
 # Command to run the app
-CMD ["node", "app.js"]
+# require opentelemetry.js to instrument the app
+CMD ["node", "--require", "./opentelemetry.js", "app.js"]

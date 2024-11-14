@@ -2,7 +2,7 @@ APP_NAME = flight-app-js
 PORT = 3000
 
 build:
-	docker build -t $(APP_NAME) .
+	docker build --no-cache -t $(APP_NAME) .
 
 run:
 	docker run -p $(PORT):$(PORT) $(APP_NAME)

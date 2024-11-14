@@ -7,6 +7,20 @@ const meter = metrics.getMeter('flight-app-js','1.0.0');
 const counter = meter.createCounter('flight-app-js.root_endpoint.counter', {
   description: 'Counts the number of times the root endpoint is invoked',
 });
+const logsAPI = require('@opentelemetry/api-logs');
+const {
+  LoggerProvider,
+  SimpleLogRecordProcessor,
+  ConsoleLogRecordExporter,
+} = require('@opentelemetry/sdk-logs');
+// To start a logger, you first need to initialize the Logger provider.
+const loggerProvider = new LoggerProvider();
+// Add a processor to export log record
+loggerProvider.addLogRecordProcessor(
+  new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
+);
+//  To create a log record, you first need to get a Logger instance
+const logger = loggerProvider.getLogger('default');
 
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -42,6 +56,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.get('/', (req, res) => {
   counter.add(1);
   res.send({'message': 'ok'});
+  // emit a log record
+  logger.emit({
+    severityNumber: logsAPI.SeverityNumber.INFO,
+    severityText: 'INFO',
+    body: 'custom log record for the root endpoint',
+    attributes: { 'log.type': 'LogRecord' },
+  });
 });
 
 /**
@@ -71,6 +92,13 @@ app.get('/airlines/:err?', (req, res) => {
 
     res.send({ airlines: AIRLINES });
     span.end();
+  });
+  // emit a log record
+  logger.emit({
+    severityNumber: logsAPI.SeverityNumber.INFO,
+    severityText: 'INFO',
+    body: 'custom log record for the get airlines endpoint',
+    attributes: { 'log.type': 'LogRecord' },
   });
 });
 
@@ -111,6 +139,13 @@ app.get('/flights/:airline/:err?', (req, res) => {
   const randomInt = utils.getRandomInt(100, 999);
   res.send({[req.params.airline]: [randomInt]});
   histogram.record(randomInt);
+  // emit a log record
+  logger.emit({
+    severityNumber: logsAPI.SeverityNumber.INFO,
+    severityText: 'INFO',
+    body: 'custom log record for the get flights endpoint',
+    attributes: { 'log.type': 'LogRecord' },
+  });
 });
 
 const PORT = 3000;

@@ -10,8 +10,17 @@ COPY requirements.txt requirements.txt
 # Install the required dependencies
 RUN pip3 install -r requirements.txt
 
+# Install OTEL packages
+RUN opentelemetry-bootstrap -a install
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
+
 # Copy the rest of your application code into the container
 COPY . .
 
 # Specify the command to run your Flask app
-CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
+#CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
+CMD ["opentelemetry-instrument", "--traces_exporter", "console", "--metrics_exporter", "console", "--logs_exporter", "console", "--service_name", "flight-app-py", "flask", "run", "--host=0.0.0.0"]
+#CMD ["opentelemetry-instrument", "--logs_exporter", "otlp", "flask", "run", "--host=0.0.0.0"]

@@ -31,7 +31,7 @@ const resource = Resource.default().merge(
   })
 );
 
-const metricReader = new PeriodicExportingMetricReader({
+const metricExporter = new PeriodicExportingMetricReader({
   //exporter: new ConsoleMetricExporter(),
   exporter: new OTLPMetricExporter({
     //url: 'http://localhost:4317/v1/metrics',
@@ -58,7 +58,7 @@ const sdk = new NodeSDK({
     //url: 'http://localhost:4317/v1/traces',
     url: 'http://localhost:4317',
   }),
-  metricReader: metricReader,
+  metricReader: metricExporter,
   instrumentations: [getNodeAutoInstrumentations()],
 });
 

@@ -16,11 +16,12 @@ RUN opentelemetry-bootstrap -a install
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED=true
+ENV OTEL_SERVICE_NAME="flight-app-py"
 
 # Copy the rest of your application code into the container
 COPY . .
 
 # Specify the command to run your Flask app
 #CMD ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
-CMD ["opentelemetry-instrument", "--traces_exporter", "console", "--metrics_exporter", "console", "--logs_exporter", "console", "--service_name", "flight-app-py", "flask", "run", "--host=0.0.0.0"]
-#CMD ["opentelemetry-instrument", "--logs_exporter", "otlp", "flask", "run", "--host=0.0.0.0"]
+#CMD ["opentelemetry-instrument", "--traces_exporter", "console", "--metrics_exporter", "console", "--logs_exporter", "console", "--service_name", "flight-app-py", "flask", "run", "--host=0.0.0.0"]
+CMD ["opentelemetry-instrument", "--traces_exporter", "otlp", "--metrics_exporter", "otlp", "--logs_exporter", "otlp", "--service_name", "flight-app-py", "flask", "run", "--host=0.0.0.0"]

@@ -11,3 +11,11 @@ services:
       context: ./flight-app-py
     ports:
       - "5000:5000"
+
+  alloy:
+    volumes:
+      - './alloy/config.alloy:/etc/alloy/config.alloy'
+    ports:
+      - '12345:12345'
+    image: 'grafana/alloy:latest'
+    command: 'run --server.http.listen-addr=0.0.0.0:12345 --storage.path=/var/lib/alloy/data /etc/alloy/config.alloy'

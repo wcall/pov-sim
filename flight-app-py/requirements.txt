@@ -5,5 +5,6 @@ opentelemetry-sdk
 opentelemetry-semantic-conventions
 opentelemetry-distro
 opentelemetry-instrumentation-flask 
+opentelemetry-instrumentation-logging
 opentelemetry-exporter-otlp
 opentelemetry-exporter-otlp-proto-grpc

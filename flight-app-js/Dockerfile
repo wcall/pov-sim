@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Environment variables
 ENV OTEL_SERVICE_NAME="flight-app-js" \
-  OTEL_RESOURCE_ATTRIBUTES="deployment.environment=production,service.name=flight-app-js,service.namespace=pov-sim,service.version=1.0.0,service.instance.id=Wei-Chins-MacBook-Pro.local" \
+  OTEL_RESOURCE_ATTRIBUTES="deployment.environment=lab,service.name=flight-app-js,service.namespace=pov-sim-js,service.version=1.0.0,service.instance.id=Wei-Chins-MacBook-Pro.local" \
   OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-prod-us-central-0.grafana.net/otlp" \ 
   OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf" \ 
   OTEL_TRACES_EXPORTER="otlp" \

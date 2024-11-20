@@ -19,7 +19,6 @@ const {
 //} = require('@opentelemetry/exporter-metrics-otlp-grpc');
 } = require('@opentelemetry/exporter-metrics-otlp-proto');
 const {
-  MeterProvider,
   PeriodicExportingMetricReader,
   ConsoleMetricExporter,
 } = require('@opentelemetry/sdk-metrics');
@@ -59,33 +58,6 @@ const metricExporter = new OTLPMetricExporter(collectorOptions);
 //  exportIntervalMillis: 15000,
 //}));
 
-//logging
-const { DiagConsoleLogger, DiagLogLevel, diag } = require('@opentelemetry/api');
-const { logs, SeverityNumber } = require('@opentelemetry/api-logs');
-const {
-  LoggerProvider,
-  BatchLogRecordProcessor,
-  SimpleLogRecordProcessor,
-  ConsoleLogRecordExporter,
-} = require('@opentelemetry/sdk-logs');
-// Optional and only needed to see the internal diagnostic logging (during development)
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
-//const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-grpc');
-const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-proto');
-const loggerExporter = new OTLPLogExporter(collectorOptions);
-// To start a logger, you first need to initialize the Logger provider.
-const loggerProvider = new LoggerProvider({
-  resource: resource,
-});
-// Add a processor to export log record
-//loggerProvider.addLogRecordProcessor(
-  //new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
-//  new BatchLogRecordProcessor(loggerExporter)
-//);
-['SIGINT', 'SIGTERM'].forEach(signal => {
-  process.on(signal, () => loggerProvider.shutdown().catch(console.error));
-});
-//logs.setGlobalLoggerProvider(loggerProvider);
 
 // Set up the SDK for auto-instrumentation
 const sdk = new NodeSDK({
@@ -96,7 +68,7 @@ const sdk = new NodeSDK({
   metricReader: new PeriodicExportingMetricReader({
     exporter: metricExporter,
   }),
-  logRecordProcessor: new BatchLogRecordProcessor(loggerExporter), // referencing https://github.com/open-telemetry/opentelemetry-js/issues/4552
+  //logRecordProcessor: new BatchLogRecordProcessor(loggerExporter), // referencing https://github.com/open-telemetry/opentelemetry-js/issues/4552
   instrumentations: [getNodeAutoInstrumentations()],
 });
 

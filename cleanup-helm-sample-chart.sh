@@ -1,0 +1,1 @@
+helm uninstall sample-chart

@@ -55,10 +55,10 @@ const provider = new BasicTracerProvider({
 //metrics
 const metricExporter = new OTLPMetricExporter(collectorOptions);
 const meterProvider = new MeterProvider({});
-meterProvider.addMetricReader(new PeriodicExportingMetricReader({
-  exporter: metricExporter,
-  exportIntervalMillis: 15000,
-}));
+//meterProvider.addMetricReader(new PeriodicExportingMetricReader({
+//  exporter: metricExporter,
+//  exportIntervalMillis: 15000,
+//}));
 
 //logging
 const { DiagConsoleLogger, DiagLogLevel, diag } = require('@opentelemetry/api');
@@ -79,10 +79,10 @@ const loggerProvider = new LoggerProvider({
   resource: resource,
 });
 // Add a processor to export log record
-loggerProvider.addLogRecordProcessor(
+//loggerProvider.addLogRecordProcessor(
   //new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
-  new BatchLogRecordProcessor(loggerExporter)
-);
+//  new BatchLogRecordProcessor(loggerExporter)
+//);
 ['SIGINT', 'SIGTERM'].forEach(signal => {
   process.on(signal, () => loggerProvider.shutdown().catch(console.error));
 });
@@ -93,7 +93,11 @@ const sdk = new NodeSDK({
   resource: resource,
   //traceExporter: new ConsoleSpanExporter(),
   traceExporter: exporter, 
-  metricReader: metricExporter,
+  //metricReader: metricExporter,
+  metricReader: new PeriodicExportingMetricReader({
+    exporter: metricExporter,
+  }),
+  logRecordProcessor: new BatchLogRecordProcessor(loggerExporter), // referencing https://github.com/open-telemetry/opentelemetry-js/issues/4552
   instrumentations: [getNodeAutoInstrumentations()],
 });
 

@@ -13,7 +13,8 @@ ENV OTEL_SERVICE_NAME="flight-app-js" \
   OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-prod-us-central-0.grafana.net/otlp" \ 
   OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf" \ 
   OTEL_TRACES_EXPORTER="otlp" \
-  OTEL_NODE_RESOURCE_DETECTORS="env,host,os,serviceinstance"
+  OTEL_LOGS_EXPORTER="otlp" \
+  OTEL_NODE_RESOURCE_DETECTORS="env,host,os,serviceinstance" 
   
 # Install express
 RUN npm install express swagger-jsdoc swagger-ui-express

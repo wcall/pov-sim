@@ -54,7 +54,6 @@ const provider = new BasicTracerProvider({
 
 //metrics
 const metricExporter = new OTLPMetricExporter(collectorOptions);
-const meterProvider = new MeterProvider({});
 //meterProvider.addMetricReader(new PeriodicExportingMetricReader({
 //  exporter: metricExporter,
 //  exportIntervalMillis: 15000,

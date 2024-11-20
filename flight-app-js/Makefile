@@ -5,7 +5,7 @@ build:
 	docker build --no-cache -t $(APP_NAME) .
 
 run:
-	docker run -p $(PORT):$(PORT) $(APP_NAME)
+	docker run --env-file .env -p $(PORT):$(PORT) $(APP_NAME)
 
 start:
 	make build

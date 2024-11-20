@@ -5,7 +5,7 @@ const { ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-node');
 const {
   getNodeAutoInstrumentations,
 } = require('@opentelemetry/auto-instrumentations-node');
-const { opentelemetry } = require('@opentelemetry/api');
+const { opentelemetry} = require('@opentelemetry/api');
 // add OTLP exporters
 const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/sdk-trace-base');
 const {
@@ -59,20 +59,23 @@ const myServiceMeterProvider = new MeterProvider({
 opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);
 
 //logging
-const logsAPI = require('@opentelemetry/api-logs');
+const { DiagConsoleLogger, DiagLogLevel, diag } = require('@opentelemetry/api');
+const { logs, SeverityNumber } = require('@opentelemetry/api-logs');
 const {
   LoggerProvider,
   BatchLogRecordProcessor,
   SimpleLogRecordProcessor,
   ConsoleLogRecordExporter,
 } = require('@opentelemetry/sdk-logs');
+// Optional and only needed to see the internal diagnostic logging (during development)
+diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 //const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-grpc');
 const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-proto');
 const loggerExporter = new OTLPLogExporter(collectorOptions);
 // To start a logger, you first need to initialize the Logger provider.
-const loggerProvider = new LoggerProvider(
+const loggerProvider = new LoggerProvider({
   resource: resource,
-);
+});
 // Add a processor to export log record
 loggerProvider.addLogRecordProcessor(
   //new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())

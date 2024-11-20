@@ -5,7 +5,7 @@ const { ConsoleSpanExporter } = require('@opentelemetry/sdk-trace-node');
 const {
   getNodeAutoInstrumentations,
 } = require('@opentelemetry/auto-instrumentations-node');
-const { opentelemetry} = require('@opentelemetry/api');
+const { opentelemetry, metrics} = require('@opentelemetry/api');
 // add OTLP exporters
 const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/sdk-trace-base');
 const {
@@ -58,7 +58,7 @@ meterProvider.addMetricReader(new PeriodicExportingMetricReader({
 }));
 
 // Set this MeterProvider to be global to the app being instrumented.
-opentelemetry.setGlobalMeterProvider(meterProvider);
+metrics.setGlobalMeterProvider(meterProvider);
 
 //logging
 const { DiagConsoleLogger, DiagLogLevel, diag } = require('@opentelemetry/api');

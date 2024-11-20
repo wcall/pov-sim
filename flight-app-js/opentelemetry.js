@@ -46,14 +46,15 @@ const exporter = new OTLPTraceExporter(collectorOptions);
 const provider = new BasicTracerProvider({
   spanProcessors: [new SimpleSpanProcessor(exporter)]
 });
-
 provider.register();
 
+//metrics
 const metricExporter = new OTLPMetricExporter(collectorOptions);
-const myServiceMeterProvider = new MeterProvider({
-  resource: resource,
-  readers: [metricExporter],
-});
+const meterProvider = new MeterProvider({});
+meterProvider.addMetricReader(new PeriodicExportingMetricReader({
+  exporter: metricExporter,
+  exportIntervalMillis: 1000,
+}));
 
 // Set this MeterProvider to be global to the app being instrumented.
 opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);

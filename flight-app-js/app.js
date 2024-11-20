@@ -10,7 +10,7 @@ const {
 } = require('@opentelemetry/semantic-conventions');
 
 //metrics
-const meter = metrics.getMeter('flight-app-js','1.0.0');
+const meter = meterProvider.getMeter('flight-app-js','1.0.0');
 const counter = meter.createCounter('flight-app-js.root_endpoint.counter', {
   description: 'Counts the number of times the root endpoint is invoked',
 });

@@ -1,38 +1,23 @@
+//tracing
 const { trace, metrics } = require('@opentelemetry/api');
-
-const logsAPI = require('@opentelemetry/api-logs');
-const {
-  LoggerProvider,
-  BatchLogRecordProcessor,
-  SimpleLogRecordProcessor,
-  ConsoleLogRecordExporter,
-} = require('@opentelemetry/sdk-logs');
-const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-grpc');
-
 const tracer = trace.getTracer(
   'flight-app-js',
   '1.0.0',
 );
+const {
+  SEMATTRS_CODE_FUNCTION,
+  SEMATTRS_CODE_FILEPATH,
+} = require('@opentelemetry/semantic-conventions');
+
+//metrics
 const meter = metrics.getMeter('flight-app-js','1.0.0');
 const counter = meter.createCounter('flight-app-js.root_endpoint.counter', {
   description: 'Counts the number of times the root endpoint is invoked',
 });
 
-const loggerExporter = new OTLPLogExporter({
-  url: 'http://localhost:4317',
-})
-// To start a logger, you first need to initialize the Logger provider.
-const loggerProvider = new LoggerProvider();
-// Add a processor to export log record
-loggerProvider.addLogRecordProcessor(
-  //new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
-  new BatchLogRecordProcessor(loggerExporter)
-);
-['SIGINT', 'SIGTERM'].forEach(signal => {
-  process.on(signal, () => loggerProvider.shutdown().catch(console.error));
-});
 //  To create a log record, you first need to get a Logger instance
 const logger = loggerProvider.getLogger('default');
+
 
 const express = require('express');
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -99,13 +84,27 @@ app.get('/airlines/:err?', (req, res) => {
   // Create a span.
   return tracer.startActiveSpan('get_airlines', span => {
     if (req.params.err === 'raise') {
+      span.addEvent('exception in get_airlines',{
+        'log.severity': 'error',
+        'log.message': 'raise exception in get_airlines'
+      });
+      span.setStatus({
+        code: opentelemetry.SpanStatusCode.ERROR,
+        message: 'Error: Raise test exception in get_airlines',
+      })
+      logger.emit({
+        severityNumber: logsAPI.SeverityNumber.ERROR,
+        severityText: 'ERROR',
+        body: 'custom log record for the exception raised in get_airlines',
+        attributes: { 'log.type': 'LogRecord' },
+      });
       throw new Error('Raise test exception');
     }
 
     // Add an attribute to the span
     const random_int = utils.getRandomInt(100, 999);
-    span.setAttribute('get_airlines.random_int', random_int);
-
+    span.setAttribute('get_airlines.random_int', random_int.toString());
+    span.setAttribute(SEMATTRS_CODE_FUNCTION, 'get_airlines');
     res.send({ airlines: AIRLINES });
     span.end();
   });
@@ -148,6 +147,13 @@ app.get('/airlines/:err?', (req, res) => {
  */
 app.get('/flights/:airline/:err?', (req, res) => {
   if (req.params.err === 'raise') {
+    // emit a log record
+    logger.emit({
+      severityNumber: logsAPI.SeverityNumber.ERROR,
+      severityText: 'ERROR',
+      body: 'custom log record for an exception raised in get_flights endpoint',
+      attributes: { 'log.type': 'LogRecord' },
+    });
     throw new Error('Raise test exception');
   }
   // Record a new histogram value based on the random int generated

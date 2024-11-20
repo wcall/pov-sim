@@ -10,11 +10,11 @@ COPY package*.json ./
 # Environment variables
 ENV OTEL_SERVICE_NAME="flight-app-js" \
   OTEL_RESOURCE_ATTRIBUTES="deployment.environment=production,service.name=flight-app-js,service.namespace=pov-sim,service.version=1.0.0,service.instance.id=Wei-Chins-MacBook-Pro.local" \
-  OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317" \
-  OTEL_EXPORTER_OTLP_PROTOCOL="grpc" \
+  OTEL_EXPORTER_OTLP_ENDPOINT="https://otlp-gateway-prod-us-central-0.grafana.net/otlp" \ 
+  OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf" \ 
   OTEL_TRACES_EXPORTER="otlp" \
-  OTEL_NODE_RESOURCE_DETECTORS="env,host,os"
-
+  OTEL_NODE_RESOURCE_DETECTORS="env,host,os,serviceinstance"
+  
 # Install express
 RUN npm install express swagger-jsdoc swagger-ui-express
 # Install OTEL packages
@@ -34,6 +34,10 @@ RUN npm install --save \
 RUN npm install --save @opentelemetry/exporter-trace-otlp-grpc \
   @opentelemetry/exporter-metrics-otlp-grpc \ 
   @opentelemetry/exporter-logs-otlp-grpc
+# Install HTTP/Proto exporter packages
+RUN npm install --save @opentelemetry/exporter-trace-otlp-proto \
+  @opentelemetry/exporter-metrics-otlp-proto \ 
+  @opentelemetry/exporter-logs-otlp-proto
 
 # Bundle app source
 COPY . .
@@ -43,4 +47,4 @@ EXPOSE 3000
 
 # Command to run the app
 # require opentelemetry.js to instrument the app
-CMD ["node", "--require", "./opentelemetry.js", "app.js"]
+CMD ["node", "--experimental-modules", "--require=suppress-experimental-warnings", "./opentelemetry.js", "app.js"]

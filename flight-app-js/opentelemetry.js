@@ -7,12 +7,15 @@ const {
 } = require('@opentelemetry/auto-instrumentations-node');
 const { opentelemetry } = require('@opentelemetry/api');
 // add OTLP exporters
+const { BasicTracerProvider, SimpleSpanProcessor } = require('@opentelemetry/sdk-trace-base');
 const {
   OTLPTraceExporter,
-} = require('@opentelemetry/exporter-trace-otlp-grpc');
+//} = require('@opentelemetry/exporter-trace-otlp-grpc');
+} = require('@opentelemetry/exporter-trace-otlp-proto');
 const {
   OTLPMetricExporter,
-} = require('@opentelemetry/exporter-metrics-otlp-grpc');
+//} = require('@opentelemetry/exporter-metrics-otlp-grpc');
+} = require('@opentelemetry/exporter-metrics-otlp-proto');
 const {
   MeterProvider,
   PeriodicExportingMetricReader,
@@ -31,33 +34,60 @@ const resource = Resource.default().merge(
   })
 );
 
-const metricExporter = new PeriodicExportingMetricReader({
-  //exporter: new ConsoleMetricExporter(),
-  exporter: new OTLPMetricExporter({
-    //url: 'http://localhost:4317/v1/metrics',
-    url: 'http://localhost:4317',
-  }),
-  exportIntervalMillis: 15000, // Set to 15 seconds for demonstrative purposes only.
+const collectorOptions = {
+  timeoutMillis: 15000,
+  //url: '<opentelemetry-collector-url>', // url is optional and can be omitted - default is http://localhost:4318/v1/traces
+  headers: {
+    //foo: 'bar'
+  }, //an optional object containing custom headers to be sent with each request will only work with http
+};
+
+const exporter = new OTLPTraceExporter(collectorOptions);
+const provider = new BasicTracerProvider({
+  spanProcessors: [new SimpleSpanProcessor(exporter)]
 });
 
-/*
+provider.register();
+
+const metricExporter = new OTLPMetricExporter(collectorOptions);
 const myServiceMeterProvider = new MeterProvider({
   resource: resource,
-  readers: [metricReader],
+  readers: [metricExporter],
 });
 
 // Set this MeterProvider to be global to the app being instrumented.
 opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);
-*/
+
+//logging
+const logsAPI = require('@opentelemetry/api-logs');
+const {
+  LoggerProvider,
+  BatchLogRecordProcessor,
+  SimpleLogRecordProcessor,
+  ConsoleLogRecordExporter,
+} = require('@opentelemetry/sdk-logs');
+//const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-grpc');
+const { OTLPLogExporter } = require('@opentelemetry/exporter-logs-otlp-proto');
+const loggerExporter = new OTLPLogExporter(collectorOptions);
+// To start a logger, you first need to initialize the Logger provider.
+const loggerProvider = new LoggerProvider(
+  resource: resource,
+);
+// Add a processor to export log record
+loggerProvider.addLogRecordProcessor(
+  //new SimpleLogRecordProcessor(new ConsoleLogRecordExporter())
+  new BatchLogRecordProcessor(loggerExporter)
+);
+['SIGINT', 'SIGTERM'].forEach(signal => {
+  process.on(signal, () => loggerProvider.shutdown().catch(console.error));
+});
+logs.setGlobalLoggerProvider(loggerProvider);
 
 // Set up the SDK for auto-instrumentation
 const sdk = new NodeSDK({
   resource: resource,
   //traceExporter: new ConsoleSpanExporter(),
-  traceExporter: new OTLPTraceExporter({
-    //url: 'http://localhost:4317/v1/traces',
-    url: 'http://localhost:4317',
-  }),
+  traceExporter: exporter, 
   metricReader: metricExporter,
   instrumentations: [getNodeAutoInstrumentations()],
 });

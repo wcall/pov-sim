@@ -12,6 +12,8 @@ const {
   OTLPTraceExporter,
 //} = require('@opentelemetry/exporter-trace-otlp-grpc');
 } = require('@opentelemetry/exporter-trace-otlp-proto');
+
+
 const {
   OTLPMetricExporter,
 //} = require('@opentelemetry/exporter-metrics-otlp-grpc');
@@ -21,6 +23,8 @@ const {
   PeriodicExportingMetricReader,
   ConsoleMetricExporter,
 } = require('@opentelemetry/sdk-metrics');
+
+
 const { Resource } = require('@opentelemetry/resources');
 const {
   ATTR_SERVICE_NAME,
@@ -46,15 +50,14 @@ const exporter = new OTLPTraceExporter(collectorOptions);
 const provider = new BasicTracerProvider({
   spanProcessors: [new SimpleSpanProcessor(exporter)]
 });
-provider.register();
+//provider.register();
 
 //metrics
 const metricExporter = new OTLPMetricExporter(collectorOptions);
 const meterProvider = new MeterProvider({});
 meterProvider.addMetricReader(new PeriodicExportingMetricReader({
-  resource: resource,
   exporter: metricExporter,
-  exportIntervalMillis: 1000,
+  exportIntervalMillis: 15000,
 }));
 
 //logging
@@ -83,7 +86,7 @@ loggerProvider.addLogRecordProcessor(
 ['SIGINT', 'SIGTERM'].forEach(signal => {
   process.on(signal, () => loggerProvider.shutdown().catch(console.error));
 });
-logs.setGlobalLoggerProvider(loggerProvider);
+//logs.setGlobalLoggerProvider(loggerProvider);
 
 // Set up the SDK for auto-instrumentation
 const sdk = new NodeSDK({

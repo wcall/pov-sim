@@ -47,4 +47,4 @@ EXPOSE 3000
 
 # Command to run the app
 # require opentelemetry.js to instrument the app
-CMD ["node", "--experimental-modules", "--disable-warning" ,"--require", "./opentelemetry.js", "app.js"]
+CMD ["node", "--experimental-modules", "--require", "./opentelemetry.js", "app.js"]

@@ -52,12 +52,13 @@ provider.register();
 const metricExporter = new OTLPMetricExporter(collectorOptions);
 const meterProvider = new MeterProvider({});
 meterProvider.addMetricReader(new PeriodicExportingMetricReader({
+  resource: resource,
   exporter: metricExporter,
   exportIntervalMillis: 1000,
 }));
 
 // Set this MeterProvider to be global to the app being instrumented.
-opentelemetry.metrics.setGlobalMeterProvider(myServiceMeterProvider);
+opentelemetry.setGlobalMeterProvider(meterProvider);
 
 //logging
 const { DiagConsoleLogger, DiagLogLevel, diag } = require('@opentelemetry/api');

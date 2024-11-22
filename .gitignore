@@ -1,5 +1,5 @@
 node_modules
-.env
+**/.env
 **/config.alloy*
 **/config.alloy
 **/otel-collector/otelcol-contrib*
